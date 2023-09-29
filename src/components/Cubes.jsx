@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import { useRef, useCallback, useState, useEffect } from "react"
-import { Edges } from "@react-three/drei"
+import { Edges, Text } from "@react-three/drei"
+
 
 // Sides of Cube
 const faceDirection = [
@@ -12,24 +13,31 @@ const faceDirection = [
     [0, 0, -1],
 ]
 
+
 export const Cubes = () => {
 
     const [hover, setHover] = useState(null)
     const [cubes, setCubes] = useState([]);
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
+    //keep track of players + block count
+    const [currentPlayer, setCurrentPlayer] = useState(1);
+    const [playerBlockCount, setPlayerBlockCount] = useState(0);
+    const [playerNames] = useState(['Player 1', 'Player 2']);
+
+    const playerTurnText = `Current Turn: ${playerNames[currentPlayer - 1]}`;
+
+    // event listeners
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
             setIsShiftPressed(true);
         }
     };
-
     const handleKeyUp = (e) => {
         if (e.key === 'Shift') {
             setIsShiftPressed(false);
         }
     };
-
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
@@ -62,48 +70,74 @@ export const Cubes = () => {
             pos = pos.floor().addScalar(0.5);
             setHover(pos);
         }
-
     }, [hover, cubes, isShiftPressed])
 
 
+    // remove cube on click
     const removeCube = useCallback((e, index) => {
 
-        if (isShiftPressed) {
-            console.log("remove cube")
-
-            setCubes((prevCubes) => {
-                const updatedCubes = [...prevCubes];
-
-                updatedCubes.splice(index, 1);
-                return updatedCubes;
-            });
-
+        if (currentPlayer == 2) {
+            console.log("Player 2 cannot remove blocks")
+            return;
         }
-    }, [cubes, isShiftPressed])
+
+        if (isShiftPressed) {
+
+            if (playerBlockCount <= 2) {
+                setCubes((prevCubes) => {
+                    const updatedCubes = [...prevCubes];
+
+                    updatedCubes.splice(index, 1);
+                    return updatedCubes;
+                });
+
+                setPlayerBlockCount((prevCount) => prevCount + 1);
+            } else {
+                togglePlayer();
+            }
+        }
+    }, [cubes, isShiftPressed, playerBlockCount, currentPlayer])
+
 
     // When pointer is out of screen
     const onOut = useCallback(() => setHover(null), [])
+
 
     // Add cube on click
     const addCube = useCallback((e) => {
         e.stopPropagation()
 
-        if (!hover) return;
-        if (isShiftPressed) return;
-        //if scrolling, stop
-        if (e.delta > 10) return
+        if (!hover || isShiftPressed || e.delta > 10) return;
 
-        const voxel = new THREE.Mesh(new THREE.BoxGeometry, new THREE.MeshStandardMaterial({ color: 'white' }));
-        voxel.position.copy(hover)
+        if (playerBlockCount <= 2) {
+            const voxel = new THREE.Mesh(new THREE.BoxGeometry, new THREE.MeshStandardMaterial({ color: 'white' }));
+            voxel.position.copy(hover)
 
-        //Add to array
-        setCubes((prevCubes) => [...prevCubes, { mesh: voxel }]);
+            //Add to array
+            setCubes((prevCubes) => [...prevCubes, { mesh: voxel }]);
+            setPlayerBlockCount((prevCount) => prevCount + 1);
 
-    }, [hover, cubes, isShiftPressed])
+        } else {
+            togglePlayer();
+        }
+    }, [hover, cubes, isShiftPressed, playerBlockCount])
+
+
+    //player control
+    const togglePlayer = () => {
+        setCurrentPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
+        setPlayerBlockCount(0);
+        console.log(currentPlayer)
+    };
 
 
     return (
         <>
+            {/* UI */}
+            <Text position={[0, 5, 0]} fontSize={1}>
+                {playerTurnText}
+            </Text>
+
             {/* cubes */}
             {cubes.map((cube, index) => (
                 <mesh
