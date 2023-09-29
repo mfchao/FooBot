@@ -1,8 +1,8 @@
+import React from "react";
 import { Environment, Sphere } from "@react-three/drei";
 import { Gradient, LayerMaterial } from "lamina";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-
 
 import * as THREE from "three";
 

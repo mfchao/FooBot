@@ -11,12 +11,19 @@
   "dependencies": {
     "@react-three/drei": "^9.77.1",
     "@react-three/fiber": "^8.11.5",
+    "add": "^2.0.6",
     "gsap": "^3.12.1",
     "lamina": "^1.1.23",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.150.1",
-    "troika-3d-text": "^0.47.2"
+    "troika-3d-text": "^0.47.2",
+    "valtio": "1.7.0",
+    "valtio-yjs": "0.3.1",
+    "y-webrtc": "10.2.3",
+    "yarn": "^1.22.19",
+    "yjs": "13.5.41"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
